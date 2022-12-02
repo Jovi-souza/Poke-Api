@@ -16,16 +16,29 @@ type PokemonProps = {
   order: number
   weight: number
   url: string
+  abilities: string[]
+  types: string[]
 }
 
 export function PokemonCard({ name, url }: PokemonCardProps) {
   const [pokemon, setPokemon] = useState({} as PokemonProps)
-  console.log(pokemon)
+  const { abilities, types } = pokemon
 
   useEffect(() => {
     async function getPokemonData() {
       const res = await axios.get(url)
       const data = res.data
+
+      const abilities = data.abilities.map(
+        (item: { ability: { name: string } }) => {
+          return item.ability.name
+        },
+      )
+      const types = data.types.map((item: { type: { name: string } }) => {
+        return item.type.name
+      })
+      console.log(data)
+
       const poke: PokemonProps = {
         id: data.id,
         name: data.name,
@@ -34,6 +47,8 @@ export function PokemonCard({ name, url }: PokemonCardProps) {
         order: data.order,
         weight: data.weight,
         url: data.sprites.front_default,
+        abilities,
+        types,
       }
       setPokemon(poke)
     }
@@ -45,7 +60,13 @@ export function PokemonCard({ name, url }: PokemonCardProps) {
       <Dialog.Trigger>
         <div className="flex flex-col gap-4 px-6 py-4 w-48 items-center justify-center rounded-xl bg-purple-500 text-white font-bold">
           <div className="-mt-12">
-            <Image src={pokemon.url} alt="" width={100} height={100} />
+            <Image
+              src={pokemon?.url}
+              alt=""
+              width={100}
+              height={100}
+              loading="lazy"
+            />
           </div>
           <div className="flex gap-4 rounded-lg px-4 py-1 bg-gray-600">
             <span className="text-purple-300">#{pokemon.id}</span>
@@ -55,17 +76,62 @@ export function PokemonCard({ name, url }: PokemonCardProps) {
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed" />
-        <Dialog.Content className="flex flex-col justify-center items-center bg-gray-400 rounded-md px-4 py-8 fixed top-[50%] left-[50%] -translate-y-[50%] -translate-x-[50%] w-[70%] max-w-xs">
-          <Dialog.Title className="">
-            <Image src={pokemon.url} alt="" width={150} height={150} />
+        <Dialog.Content className="flex flex-col items-center justify-center gap-8 w-2/3 max-w-md rounded-xl bg-white shadow-2xl border border-gray-500 fixed top-[50%] left-[50%] -translate-y-[50%] -translate-x-[50%]">
+          <Dialog.Title className="flex flex-col gap-4">
+            <Image
+              alt="image pokemon"
+              src={pokemon.url}
+              width={150}
+              height={100}
+            />
+            <div className="flex justify-between">
+              {types?.map((item) => (
+                <div
+                  key={item}
+                  className="py-2 px-3 text-center text-white bg-blue-600 rounded"
+                >
+                  {item}
+                </div>
+              ))}
+            </div>
           </Dialog.Title>
-          <Dialog.Description className="grid grid-cols-2 gap-4 justify-center items-center w-[95%] bg-gray-100 rounded-md px-4 py-2 border border-red-500">
-            <p>Weight: {pokemon.weight}</p>
-            <p className="">Height: {pokemon.height}</p>
-            <p>Order: {pokemon.order}</p>
-            <p>Base Exp: {pokemon.base_experience}</p>
+          <Dialog.Description className="grid grid-cols-1 gap-2 bg-purple-500 px-14 py-6 w-full h-full rounded-t-3xl sm:grid-cols-2 md:grid-cols-3">
+            <div>
+              <div className="flex flex-col text-white">
+                Height
+                <p className="text-gray-300">{pokemon.height}</p>
+              </div>
+              <div className="flex flex-col text-white">
+                Weight
+                <p className="text-gray-300">{pokemon.weight}</p>
+              </div>
+              <div className="flex flex-col text-white">
+                Order
+                <p className="text-gray-300">{pokemon.order}</p>
+              </div>
+            </div>
+            <div>
+              <div className="flex flex-col text-white">
+                Base Exp.
+                <p className="text-gray-300">{pokemon.base_experience}</p>
+              </div>
+            </div>
+            <div>
+              <div>
+                <div className="flex flex-col gap-2 text-white">
+                  <p className="font-semibold">Abilities</p>
+                  {abilities?.map((item) => (
+                    <p
+                      key={item}
+                      className="bg-green-500 px-2 py-1 w-full max-w-[10rem] rounded text-center"
+                    >
+                      {item}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            </div>
           </Dialog.Description>
-          <Dialog.Close />
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
