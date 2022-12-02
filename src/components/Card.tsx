@@ -60,17 +60,13 @@ export function PokemonCard({ name, url }: PokemonCardProps) {
       <Dialog.Trigger>
         <div className="flex flex-col gap-4 px-6 py-4 w-48 items-center justify-center rounded-xl bg-purple-500 text-white font-bold">
           <div className="-mt-12">
-            <Image
-              src={pokemon?.url}
-              alt=""
-              width={100}
-              height={100}
-              loading="lazy"
-            />
+            <Image src={pokemon.url} alt="" width={100} height={100} />
           </div>
-          <div className="flex gap-4 rounded-lg px-4 py-1 bg-gray-600">
-            <span className="text-purple-300">#{pokemon.id}</span>
-            <h1>{name}</h1>
+          <div className="flex gap-2 w-full justify-between rounded-lg px-2 py-1 bg-gray-600">
+            <span className="text-purple-300 flex-1">#{pokemon.id}</span>
+            <h1 className="overflow-hidden whitespace-nowrap overflow-ellipsis">
+              {name}
+            </h1>
           </div>
         </div>
       </Dialog.Trigger>
