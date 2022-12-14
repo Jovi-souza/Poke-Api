@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { api } from '../lib/axios'
 import { useQuery } from 'react-query'
+import Link from 'next/link'
 
 type PokemonCardProps = {
   name: string
@@ -14,85 +15,36 @@ type PokemonProps = {
 }
 
 export function PokemonCard({ name, url }: PokemonCardProps) {
-  const { data: fetchPokemon } = useQuery<PokemonProps>(
-    ['pokemon', url],
-    async () => {
-      const { data } = await api.get(url)
-      return data
-    },
-  )
+  async function fetchPokemons(): Promise<PokemonProps> {
+    const { data } = await api.get(url)
+    return data
+  }
+
+  function usePokemons() {
+    return useQuery(['pokemons', url], fetchPokemons)
+  }
+  const { data, isSuccess } = usePokemons()
 
   return (
     <div>
-      <div className="flex flex-col gap-4 px-6 py-4 w-48 items-center justify-center rounded-xl bg-purple-500 text-white font-bold">
-        <div className="-mt-12">
-          <Image
-            src={fetchPokemon?.sprites.front_default}
-            alt="pokemon image"
-            width={100}
-            height={100}
-          />
+      {isSuccess && (
+        <div className="flex flex-col gap-4 px-6 py-4 w-48 items-center justify-center rounded-xl bg-purple-500 text-white font-bold">
+          <Link href={`pokemon/${data.id}`} prefetch={false} className="-mt-12">
+            <Image
+              src={data.sprites?.front_default}
+              alt="pokemon image"
+              width={100}
+              height={100}
+            />
+          </Link>
+          <div className="flex gap-2 w-full justify-between rounded-lg px-2 py-1 bg-gray-600">
+            <span className="text-purple-300 flex-1">#{data.id}</span>
+            <h1 className="overflow-hidden whitespace-nowrap overflow-ellipsis">
+              {name}
+            </h1>
+          </div>
         </div>
-        <div className="flex gap-2 w-full justify-between rounded-lg px-2 py-1 bg-gray-600">
-          <span className="text-purple-300 flex-1">#{fetchPokemon?.id}</span>
-          <h1 className="overflow-hidden whitespace-nowrap overflow-ellipsis">
-            {name}
-          </h1>
-        </div>
-      </div>
+      )}
     </div>
-    /* <div className="flex flex-col items-center justify-center gap-8 w-2/3 max-w-md rounded-xl bg-white shadow-2xl border border-gray-500 fixed top-[50%] left-[50%] -translate-y-[50%] -translate-x-[50%]">
-        <div className="flex flex-col gap-4">
-          <Image
-            alt="image pokemon"
-            src={fetchPokemon?.url}
-            width={150}
-            height={100}
-          />
-          <div className="flex justify-between">
-            {types?.map((item) => (
-              <div
-                key={item}
-                className="py-2 px-3 text-center text-white bg-blue-600 rounded"
-              >
-                {item}
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="grid grid-cols-1 gap-2 bg-purple-500 px-14 py-6 w-full h-full rounded-t-3xl sm:grid-cols-2 md:grid-cols-3">
-          <div>
-            <div className="flex flex-col text-white">
-              Height
-              <p className="text-gray-300">{fetchPokemon?.height}</p>
-            </div>
-            <div className="flex flex-col text-white">
-              Weight
-              <p className="text-gray-300">{fetchPokemon?.weight}</p>
-            </div>
-            <div className="flex flex-col text-white">
-              Order
-              <p className="text-gray-300">{fetchPokemon?.order}</p>
-            </div>
-          </div>
-          <div>
-            <div className="flex flex-col text-white">
-              Base Exp.
-              <p className="text-gray-300">{fetchPokemon?.base_experience}</p>
-            </div>
-          </div>
-          <div className="flex flex-col gap-2 text-white">
-            <p className="font-semibold">Abilities</p>
-            {abilities?.map((item) => (
-              <p
-                key={item}
-                className="bg-green-500 px-2 py-1 w-full max-w-[10rem] rounded text-center"
-              >
-                {item}
-              </p>
-            ))}
-          </div>
-        </div>
-      </div> */
   )
 }
