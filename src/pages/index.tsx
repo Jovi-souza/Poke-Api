@@ -41,7 +41,7 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-12 items-center max-w-2xl m-auto bg-white">
       <div>
-        <Image src={Logo} alt="" />
+        <Image src={Logo} alt="" priority={true} />
       </div>
       <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-14">
         {fetchUrls?.pokemons.map((props) => {
