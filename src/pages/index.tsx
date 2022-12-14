@@ -15,34 +15,27 @@ type urlProps = {
 }
 
 export default function Home() {
-  const [nextPage, setNextPage] = useState('')
-  const [previousPage, setPreviousPage] = useState('')
+  const [currentyPage, setCurrentyPage] = useState(0)
 
-  const { data: fetchUrls } = useQuery<urlProps>('urls', async () => {
-    const { data } = await api.get('pokemon')
-    const urlData: urlProps = {
-      next: data.next,
-      previous: data.previous,
-      pokemons: data.results,
-    }
-
-    return urlData
-  })
+  const { data: fetchUrls } = useQuery<urlProps>(
+    ['urls', currentyPage],
+    async () => {
+      const { data } = await api.get(`pokemon/?limit=20&offset=${currentyPage}`)
+      const results = {
+        next: data.next,
+        previous: data.previous,
+        pokemons: data.results,
+      }
+      return results
+    },
+  )
 
   async function NextPage() {
-    const response = await api.get(`${nextPage}`)
-    const nextPages = response.data.next
-    const previousPages = response.data.previous
-    setNextPage(nextPages)
-    setPreviousPage(previousPages)
+    setCurrentyPage((state) => (state += 20))
   }
 
   async function PreviousPage() {
-    const response = await api.get(`${previousPage}`)
-    const nextPages = response.data.next
-    const previousPages = response.data.previous
-    setNextPage(nextPages)
-    setPreviousPage(previousPages)
+    setCurrentyPage((state) => (state -= 20))
   }
 
   return (
@@ -60,15 +53,17 @@ export default function Home() {
       <div className="flex gap-4 mb-8">
         <button
           onClick={PreviousPage}
-          className={`${previousPage === null ? `hidden` : `block`}
-          bg-purple-500 text-white px-2 rounded uppercase`}
+          className={`${
+            fetchUrls?.previous === null ? 'hidden' : 'block'
+          } bg-purple-500 text-white px-2 rounded uppercase`}
         >
           previous
         </button>
         <button
           onClick={NextPage}
-          className={`${nextPage === null ? `hidden` : `block`}
-          bg-purple-500 text-white px-2 rounded uppercase`}
+          className={`${
+            fetchUrls?.next === null ? 'hidden' : 'block'
+          } bg-purple-500 text-white px-2 rounded uppercase`}
         >
           next
         </button>
